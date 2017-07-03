@@ -72,7 +72,8 @@ class ModelShareinoProducts extends Model
         $this->load->model('catalog/product');
         $this->load->model('catalog/attribute');
         $this->load->model('catalog/category');
-
+        $this->load->model('setting/setting');
+        
         $this->load->model('shareino/synchronize');
         $this->model_shareino_synchronize->synchronize($productId, $product['date_modified']);
 
@@ -113,7 +114,7 @@ class ModelShareinoProducts extends Model
         $productImages = array();
         foreach ($images as $image) {
             if ($image['image']) {
-                $productImages[] = $this->config->get('config_url') . '/image/' . $image['image'];
+                $productImages[] = $this->config->get('config_url') . 'image/' . $image['image'];
             }
         }
 
@@ -138,7 +139,7 @@ class ModelShareinoProducts extends Model
             'discount' => $listDiscounts,
             'quantity' => $product['quantity'],
             'weight' => $product['weight'],
-            'original_url' => $this->config->get('config_url') . '/index.php?route=product/product&product_id=' . $product['product_id'],
+            'original_url' => $this->config->get('config_url') . 'index.php?route=product/product&product_id=' . $product['product_id'],
             'brand_id' => '',
             'categories' => $this->model_catalog_product->getProductCategories($productId),
             'short_content' => '',
