@@ -65,6 +65,8 @@ class ModelShareinoProducts extends Model
 
     function getProductDetail($product)
     {
+        $this->load->model('setting/setting');
+
         $website = $this->config->get('config_url') ?
             $this->config->get('config_url') : 'http://' . $_SERVER['SERVER_NAME'] . '/';
 
@@ -75,7 +77,6 @@ class ModelShareinoProducts extends Model
         $this->load->model('catalog/product');
         $this->load->model('catalog/attribute');
         $this->load->model('catalog/category');
-        $this->load->model('setting/setting');
 
         $this->load->model('shareino/synchronize');
         $this->model_shareino_synchronize->synchronize($productId, $product['date_modified']);
