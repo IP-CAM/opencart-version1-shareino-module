@@ -94,7 +94,7 @@ class ControllerModuleShareino extends Controller
          */
 
         $this->destroyProducts();
-        $this->data['productIDs'] = $this->model_shareino_products->getAllIdes();
+        $this->data['countProduct'] = count($this->model_shareino_products->getAllIdes());
         $this->load->model('design/layout');
         $this->data['layouts'] = $this->model_design_layout->getLayouts();
         $this->template = 'module/shareino.tpl';
@@ -140,17 +140,20 @@ class ControllerModuleShareino extends Controller
         /*
          * Send products to ShareINO
          */
-        if (isset($this->request->post['ids'])) {
+        if (isset($this->request->post['pageNumber'])) {
+
+            $pagenumber = $this->request->post['pageNumber'];
+            $limit = $this->request->post['split'];
 
             $this->response->addHeader('Content-Type: application/json');
 
             $this->load->model('shareino/products');
             $this->load->model('shareino/requset');
 
-            $products = $this->model_shareino_products->getAllProducts($this->request->post['ids'], 1);
+            $products = $this->model_shareino_products->getAllProducts($this->model_shareino_products->getIdes($limit, $pagenumber), 1);
             $response = $this->model_shareino_requset->sendRequset("products", json_encode($products), "POST");
 
-            $this->response->setOutput($response);
+            $this->response->setOutput(json_encode($response));
         }
     }
 

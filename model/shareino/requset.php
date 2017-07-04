@@ -4,7 +4,7 @@ class ModelShareinoRequset extends Model
 {
 
     const SHAREINO_API_URL = "https://shareino.ir/api/v1/public/";
-    const Version = "1.2.4";
+    const Version = "1.2.5";
 
     public function sendRequset($url, $body, $method)
     {
@@ -12,14 +12,9 @@ class ModelShareinoRequset extends Model
         $this->load->model('setting/setting');
         $shareinoSetting = $this->model_setting_setting->getSetting("shareino");
 
-        $SHAREINO_API_TOKEN = null;
-        if ($shareinoSetting != null && !empty($shareinoSetting)) {
+        if ($shareinoSetting) {
             $SHAREINO_API_TOKEN = $shareinoSetting["shareino_api_token"];
-        } else {
-            return json_encode(array("status" => false, "messages" => "token hasn't saved before"));
-        }
 
-        if ($SHAREINO_API_TOKEN != null) {
             // Init curl
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -35,35 +30,42 @@ class ModelShareinoRequset extends Model
             // Set method in curl
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
 
-            // Check if token has been set then send request to {@link http://shareino.com}
-            if (!empty($SHAREINO_API_TOKEN)) {
-                // Set Body if its exist
-                if ($body != null) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
-                }
-                // Get result
-                curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                    "Authorization:Bearer $SHAREINO_API_TOKEN",
-                    "User-Agent: OpenCart_module_" . self::Version
-                    )
-                );
-                // Get result
-                $result = curl_exec($curl);
-                // Get Header Response header
-                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-                curl_close($curl);
-                if ($httpcode != 200) {
-                    $result = array();
-                    if ($httpcode == 401 || $httpcode == 403) {
-                        return ("خطا ! لطفا صحت توکن و وضعیت دسترسی به وب سرویس شیرینو را بررسی کنید");
-                    }
-                }
-                return $result;
-            } else {
-                return ("توکن وارد نشده است");
+            // Set Body if its exist
+            if ($body != null) {
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
+            }
+
+            // Get result
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                "Authorization:Bearer $SHAREINO_API_TOKEN",
+                "User-Agent: OpenCart_module_" . self::Version
+                )
+            );
+
+            // Get result
+            $result = curl_exec($curl);
+
+            // Get Header Response header
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+
+            switch ($httpcode) {
+                case 200:
+                    return json_decode($result, true);
+                case 401:
+                    return array('status' => false, 'message' => 'خطا! توکن وارد شده معتبر نمیباشد.');
+                case 403:
+                    return array('status' => false, 'message' => 'خطا! دسترسی  مجاز نمیباشد.');
+                case 408:
+                    return array('status' => false, 'message' => 'خطا! درخواست منقضی شد.');
+                case 429:
+                    return array('status' => false, 'code' => 429, 'message' => 'فرایند ارسال محصولات به طول می انجامد لطفا صبور باشید.');
+                default:
+                    return array('status' => false, 'message' => $httpcode);
             }
         }
-        return null;
+
+        return array('status' => false, 'message' => 'ابتدا توکن را از سرور شرینو دریافت کنید');
     }
 
     public function deleteProducts($ids, $all = false)

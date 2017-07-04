@@ -118,6 +118,47 @@
             padding:0;
             list-style-type: none;
         }
+        .fade.in {
+            opacity: 1;
+        }
+        .alert {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            direction: rtl;
+            font-size: 14px;
+        }
+        .alert-success {
+            color: #3c763d;
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+        .alert-warning {
+            background-color: #fcf8e3;
+            border-color: #faf2cc;
+            color: #8a6d3b;
+        }
+        .alert-info {
+            background-color: #d9edf7;
+            border-color: #bcdff1;
+            color: #31708f;
+        }
+        .fade {
+            opacity: 0;
+            -webkit-transition: opacity .15s linear;
+            -o-transition: opacity .15s linear;
+            transition: opacity .15s linear;
+        }
+        #progressText{
+            direction: rtl;
+            font-size: 14px;
+        }
         .progress {
             height: 20px;
             margin-bottom: 20px;
@@ -128,7 +169,7 @@
             box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
         }
         .progress-bar {
-            float: left;
+            float: right;
             width: 0;
             height: 100%;
             font-size: 12px;
@@ -162,129 +203,109 @@
             var messageBox = $("#MessageBox");
             var messageText = $("#MessageText");
             var token = $(".sync-category").attr('data-token');
-            var operation = null;
-            var stop = false;
-            // ارسال دسته بندی ها
+
             $('.sync-category').on('click', function(e) {
                 messageBox.hide();
-                operation = $('.sync-category').attr("data-operation");
-                operation === "1" ? startSync('#state-btn-category', '#state-icon-category', '.sync-category') : stopSync('#state-btn-category', '#state-icon-category', '.sync-category');
-                if (stop) {
-                    $.ajax({
-                        type: 'POST',
-                        dataType: 'JSON',
-                        url: 'index.php?route=module/shareino/syncCategory&token=' + token,
-                        data: {
-                            ajax: true,
-                            controller: 'shareino',
-                            action: 'syncCategory',
-                            ids: 1
-                        },
-                        success: function(data, textStatus, jqXHR) {
-                            if (data.status === false) {
-                                messageText.html("توکن وارد شده صحیح نمیباشد.");
-                                messageBox.show(500);
-                                messageBox.addClass('alert-danger');
-                            } else if (data.status === true) {
-                                messageText.html("دسته بندی ها شما با موفقیت به سایت شرینو ارسال شد.");
-                                messageBox.show(500);
-                                messageBox.addClass('alert-success');
-                                startSync('#state-btn-category', '#state-icon-category', '.sync-category');
-                            }
-                        },
-                        error: function(data) {
-                            messageText.html(data.data);
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'JSON',
+                    url: 'index.php?route=module/shareino/syncCategory&token=' + token,
+                    data: {
+                        ajax: true,
+                        controller: 'shareino',
+                        action: 'syncCategory',
+                        ids: 1
+                    },
+                    success: function(data, textStatus, jqXHR) {
+                        if (data.status === false) {
+                            messageText.html("توکن وارد شده صحیح نمیباشد.");
                             messageBox.show(500);
-                            messageBox.addClass("alert-danger");
+                            messageBox.addClass('alert-danger');
+                        } else if (data.status === true) {
+                            messageText.html("دسته بندی ها شما با موفقیت به سایت شرینو ارسال شد.");
+                            messageBox.show(500);
+                            messageBox.addClass('alert-success');
                         }
-                    });
-                }
+                    },
+                    error: function(data) {
+                        messageText.html(data.data);
+                        messageBox.show(500);
+                        messageBox.addClass("alert-danger");
+                    }
+                });
             });
-            // ارسال محصولات
 
-            var productIDs = [<?php echo implode(',', $productIDs)?>];
-            var lenght = productIDs.length;
-            var progress = $("#progress");
-            var submitProgress = $("#sync-progress");
-            var progressText = $("#progressText");
-            var chunk = 50;
+            var split = 50;
+            var pageNumber = 1;
+            var countProduct = <?php echo $countProduct;?>;
+            var pageCount = Math.ceil(countProduct / split);
+            var progress = jQuery("#progress");
+            var submitProgress = jQuery("#sync-progress");
 
             $('.sync-products').on('click', function(e) {
                 messageBox.hide();
                 progress.show(500);
-                operation = $('.sync-products').attr("data-operation");
                 submitProgress.show();
                 SyncProducts();
-
-                lenght = productIDs.length;
             });
 
             function SyncProducts() {
-                if (productIDs.length <= 0) {
-                    messageText.html("تمام محصولات شما با موفقیت به سایت شرینو ارسال شد.");
-                    messageBox.show(500);
+                if (pageNumber > pageCount) {
+                    messageText.html('تمام محصولات شما با موفقیت به سایت شرینو ارسال شد.');
+                    messageBox.removeClass('alert-warning');
+                    messageBox.removeClass('alert-danger');
                     messageBox.addClass('alert-success');
-                    startSync('#state-btn-product', '#state-icon-product', '.sync-products');
+                    messageBox.show(500);
                     return;
                 }
-                var IDs = productIDs.splice(0, chunk);
-                operation === "1" ? startSync('#state-btn-product', '#state-icon-product', '.sync-products') : stopSync('#state-btn-product', '#state-icon-product', '.sync-products');
-                if (stop) {
-                    $.ajax({
-                        type: 'POST',
-                        dataType: 'JSON',
-                        url: 'index.php?route=module/shareino/SyncProducts&token=' + token,
-                        data: {
-                            ajax: true,
-                            controller: 'shareino',
-                            action: 'SyncProducts',
-                            token: token,
-                            ids: IDs
-                        },
-                        success: function(data) {
-                            if (data.status === false) {
-                                messageText.html("توکن وارد شده صحیح نمیباشد.");
+
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'JSON',
+                    url: 'index.php?route=module/shareino/SyncProducts&token=' + token,
+                    data: {
+                        ajax: true,
+                        controller: 'shareino',
+                        action: 'SyncProducts',
+                        token: token,
+                        pageNumber: pageNumber,
+                        split: split
+                    },
+                    success: function(data) {
+                        if (data.status === false) {
+                            if (data.code === 429) {
+                                messageText.html(data.message);
+                                messageBox.addClass('alert-warning');
+                                messageBox.show(500);
+                                setTimeout(SyncProducts, 61 * 1000);
+                            } else {
+                                messageText.html(data.message);
                                 messageBox.show(500);
                                 messageBox.addClass('alert-danger');
-                            } else {
-                                setPercentage();
-                                SyncProducts();
                             }
-                        },
-                        error: function(data) {
-                            messageText.html(data.data);
-                            messageBox.show(500);
-                            messageBox.addClass("alert-danger");
+                        } else {
+                            setPercentage();
+                            pageNumber++;
+                            SyncProducts();
                         }
-                    });
-                }
+                    },
+                    error: function(data) {
+                        messageText.html(data.message);
+                        messageBox.show(500);
+                        messageBox.addClass("alert-danger");
+                    }
+                });
             }
 
             function setPercentage() {
-                var percentage = Math.round(((lenght - productIDs.length) * 100) / lenght);
+                var percentage = Math.round((100 * (pageNumber * split)) / countProduct);
                 percentage = percentage > 100 ? 100 : percentage;
-                var text = " تعداد " + (lenght - productIDs.length) + " از " + lenght + " کالا ارسال شد.";
-                progressText.html(text);
                 submitProgress
                         .css("width", percentage + "%")
                         .attr("aria-valuemin", percentage + "%")
                         .html(percentage + "%");
             }
-
-            function stopSync(btn, i, form) {
-                $(btn).addClass('btn-danger');
-                $(i).removeClass('fa-send');
-                $(i).addClass('fa-stop');
-                $(form).attr("data-operation", "1");
-                stop = true;
-            }
-
-            function startSync(btn, i, form) {
-                $(btn).removeClass('btn-danger');
-                $(i).addClass('fa-send');
-                $(form).attr("data-operation", "0");
-                stop = false;
-            }
         });
     </script>
-    <?php echo $footer; ?>
+</div>
+<?php echo $footer; ?>

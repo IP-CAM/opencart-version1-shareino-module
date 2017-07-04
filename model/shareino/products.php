@@ -35,6 +35,18 @@ class ModelShareinoProducts extends Model
         return false;
     }
 
+    public function getIdes($limit, $pageNumber)
+    {
+        $product = DB_PREFIX . "product";
+        $offset = ($pageNumber - 1) * $limit;
+        $query = $this->db->query("SELECT `product_id` FROM $product LIMIT $limit OFFSET $offset");
+
+        if ($query->rows > 0) {
+            return $this->array_pluck($query->rows, 'product_id');
+        }
+        return false;
+    }
+
     public function getAllProducts($productIds = array(), $type = 0)
     {
         $this->load->model('catalog/product');
@@ -150,7 +162,7 @@ class ModelShareinoProducts extends Model
             'long_content' => $product['description'],
             'meta_keywords' => $product['meta_keyword'],
             'meta_description' => $product['meta_description'],
-            'meta_title' => $product['meta_title'],
+            'meta_title' => '',
             'image' => $website . 'image/' . $product['image'],
             'images' => $productImages,
             'attributes' => $attributes,
