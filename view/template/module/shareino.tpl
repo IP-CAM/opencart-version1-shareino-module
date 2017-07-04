@@ -216,7 +216,7 @@
                         action: 'syncCategory',
                         ids: 1
                     },
-                    success: function(data, textStatus, jqXHR) { console.log(data);
+                    success: function(data, textStatus, jqXHR) {
                         if (data.status === false) {
                             messageText.html(data.message);
                             messageBox.show(500);
