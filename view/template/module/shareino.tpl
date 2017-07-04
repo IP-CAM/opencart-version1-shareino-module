@@ -122,7 +122,7 @@
             opacity: 1;
         }
         .alert {
-            padding: 10px;
+            padding-right: 10px;
             margin-bottom: 20px;
             border: 1px solid transparent;
             border-radius: 4px;
@@ -216,19 +216,19 @@
                         action: 'syncCategory',
                         ids: 1
                     },
-                    success: function(data, textStatus, jqXHR) {
+                    success: function(data, textStatus, jqXHR) { console.log(data);
                         if (data.status === false) {
-                            messageText.html("توکن وارد شده صحیح نمیباشد.");
+                            messageText.html(data.message);
                             messageBox.show(500);
                             messageBox.addClass('alert-danger');
                         } else if (data.status === true) {
-                            messageText.html("دسته بندی ها شما با موفقیت به سایت شرینو ارسال شد.");
+                            messageText.html('دسته بندی ها با موفقیت ارسال شد.');
                             messageBox.show(500);
                             messageBox.addClass('alert-success');
                         }
                     },
                     error: function(data) {
-                        messageText.html(data.data);
+                        messageText.html(data.message);
                         messageBox.show(500);
                         messageBox.addClass("alert-danger");
                     }
@@ -251,7 +251,7 @@
 
             function SyncProducts() {
                 if (pageNumber > pageCount) {
-                    messageText.html('تمام محصولات شما با موفقیت به سایت شرینو ارسال شد.');
+                    messageText.html('محصولات با موفقیت ارسال شد.');
                     messageBox.removeClass('alert-warning');
                     messageBox.removeClass('alert-danger');
                     messageBox.addClass('alert-success');

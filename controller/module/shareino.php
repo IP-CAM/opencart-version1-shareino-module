@@ -126,7 +126,7 @@ class ControllerModuleShareino extends Controller
             $categories = $this->model_shareino_categories->getCategories();
             $result = $this->model_shareino_requset->sendRequset("categories/sync", $categories, "POST");
 
-            $this->response->setOutput($result);
+            $this->response->setOutput(json_encode($result));
         }
     }
 
