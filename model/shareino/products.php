@@ -65,6 +65,9 @@ class ModelShareinoProducts extends Model
 
     function getProductDetail($product)
     {
+        $website = $this->config->get('config_url') ?
+            $this->config->get('config_url') : 'http://' . $_SERVER['SERVER_NAME'] . '/';
+
         if ($product == null) {
             return array();
         }
@@ -73,7 +76,7 @@ class ModelShareinoProducts extends Model
         $this->load->model('catalog/attribute');
         $this->load->model('catalog/category');
         $this->load->model('setting/setting');
-        
+
         $this->load->model('shareino/synchronize');
         $this->model_shareino_synchronize->synchronize($productId, $product['date_modified']);
 
@@ -114,7 +117,7 @@ class ModelShareinoProducts extends Model
         $productImages = array();
         foreach ($images as $image) {
             if ($image['image']) {
-                $productImages[] = $this->config->get('config_url') . 'image/' . $image['image'];
+                $productImages[] = $website . 'image/' . $image['image'];
             }
         }
 
@@ -139,7 +142,7 @@ class ModelShareinoProducts extends Model
             'discount' => $listDiscounts,
             'quantity' => $product['quantity'],
             'weight' => $product['weight'],
-            'original_url' => $this->config->get('config_url') . 'index.php?route=product/product&product_id=' . $product['product_id'],
+            'original_url' => $website . 'index.php?route=product/product&product_id=' . $product['product_id'],
             'brand_id' => '',
             'categories' => $this->model_catalog_product->getProductCategories($productId),
             'short_content' => '',
@@ -147,7 +150,7 @@ class ModelShareinoProducts extends Model
             'meta_keywords' => $product['meta_keyword'],
             'meta_description' => $product['meta_description'],
             'meta_title' => $product['meta_title'],
-            'image' => $this->config->get('config_url') . 'image/' . $product['image'],
+            'image' => $website . 'image/' . $product['image'],
             'images' => $productImages,
             'attributes' => $attributes,
             'tags' => explode(',', $product['tag']),
