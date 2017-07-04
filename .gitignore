@@ -183,3 +183,6 @@
 /config.php
 /.directory
 /index.php
+/nbproject/private/
+/nbproject
+.idea
