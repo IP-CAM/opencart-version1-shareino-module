@@ -61,7 +61,7 @@ class ModelShareinoRequset extends Model
                 case 429:
                     return array('status' => false, 'code' => 429, 'message' => 'فرایند ارسال محصولات به طول می انجامد لطفا صبور باشید.');
                 default:
-                    return array('status' => false, 'message' => $httpcode);
+                    return array('status' => false, 'message' => "error: $httpcode");
             }
         }
 

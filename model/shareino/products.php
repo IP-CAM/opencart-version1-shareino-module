@@ -17,7 +17,14 @@ class ModelShareinoProducts extends Model
     public function getCount()
     {
         $product = DB_PREFIX . "product";
-        $query = $this->db->query("SELECT COUNT(*) AS total FROM $product WHERE status=1");
+        $synchronize = DB_PREFIX . "shareino_synchronize";
+
+        /*
+         * SELECT COUNT(*) AS total FROM v1_product WHERE v1_product.status = 1 AND( v1_product.product_id NOT IN( SELECT v1_shareino_synchronize.product_id FROM v1_shareino_synchronize ) OR v1_product.date_modified NOT IN( SELECT v1_shareino_synchronize.date_modified FROM v1_shareino_synchronize ) )
+         */
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM $product WHERE $product.status =1 "
+            . "AND ($product.product_id NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
+            . "OR $product.date_modified NOT IN(SELECT $synchronize.date_modified FROM $synchronize))");
 
         if ($query->rows > 0) {
             return $query->rows[0]['total'];
@@ -28,8 +35,13 @@ class ModelShareinoProducts extends Model
     public function getIdes($limit, $pageNumber)
     {
         $product = DB_PREFIX . "product";
+        $synchronize = DB_PREFIX . "shareino_synchronize";
         $offset = ($pageNumber - 1) * $limit;
-        $query = $this->db->query("SELECT `product_id` FROM $product WHERE `status`=1 LIMIT $limit OFFSET $offset");
+
+        $query = $this->db->query("SELECT * FROM $product WHERE $product.status =1 "
+            . "AND ($product.product_id NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
+            . "OR $product.date_modified NOT IN(SELECT $synchronize.date_modified FROM $synchronize))"
+            . "LIMIT $limit OFFSET $offset");
 
         if ($query->rows > 0) {
             return $this->array_pluck($query->rows, 'product_id');
@@ -51,14 +63,15 @@ class ModelShareinoProducts extends Model
 
     function getProductDetail($product)
     {
-        $this->load->model('setting/setting');
-
-        $website = $this->config->get('config_url') ?
-            $this->config->get('config_url') : 'http://' . $_SERVER['SERVER_NAME'] . '/';
-
         if ($product == null) {
             return array();
         }
+
+        $this->load->model('setting/setting');
+        $website = $this->config->get('config_url') ?
+            $this->config->get('config_url') : 'http://' . $_SERVER['SERVER_NAME'] . '/';
+
+
         $productId = $product['product_id'];
         $this->load->model('catalog/product');
         $this->load->model('catalog/attribute');
@@ -147,48 +160,4 @@ class ModelShareinoProducts extends Model
         return $productDetail;
     }
 
-//    function getProduct($id)
-//    {
-//        $this->load->model('catalog/product');
-//        $this->load->model('catalog/attribute');
-//
-//        $product = $this->model_catalog_product->getProduct($id);
-//        return $this->getProductDetail($product);
-//    }
-//    public function getAllIdes()
-//    {
-//        $product = DB_PREFIX . "product";
-//        $synchronize = DB_PREFIX . "shareino_synchronize";
-//
-//        $result = $this->db->query("SELECT COUNT(*) AS 'count' FROM $synchronize");
-//
-//        if (!$result->row['count']) {
-//            $query = $this->db->query("SELECT `product_id` FROM $product WHERE `status`=1");
-//        } else {
-//            $query = $this->db->query("SELECT * FROM $product WHERE $product.product_id "
-//                . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
-//                . "OR $product.date_modified "
-//                . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize) AND $product.status =1");
-//        }
-//        if ($query->rows > 0) {
-//            return $this->array_pluck($query->rows, 'product_id');
-//        }
-//        return false;
-//    }
-//    public function getAllProducts($ids = array(), $type = 0)
-//    {
-//        $products = array();
-//        $this->load->model('catalog/product');
-//        if ($type) {
-//            foreach ($ids as $id) {
-//                $products[] = $this->getProductDetail($this->model_catalog_product->getProduct($id));
-//            }
-//        } else {
-//            $products = $this->model_catalog_product->getProducts(); //array("filter_status" => 1)
-//            foreach ($products as $product) {
-//                $productsArray[] = $this->getProductDetail($product);
-//            }
-//        }
-//        return $products;
-//    }
 }
