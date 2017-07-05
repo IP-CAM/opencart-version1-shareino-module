@@ -102,8 +102,8 @@ class ModelShareinoProducts extends Model
                 if (($product_special['date_start'] == '0000-00-00' || strtotime($product_special['date_start']) < time()) && ($product_special['date_end'] == '0000-00-00' || strtotime($product_special['date_end']) > time())) {
                     $listDiscounts[] = array(
                         'amount' => $product['price'] - $product_special['price'],
-                        'start_date' => $product_special['date_start'] . ' 00:00:00',
-                        'end_date' => $product_special['date_end'] . ' 00:00:00',
+                        'start_date' => $product_special['date_start'],
+                        'end_date' => $product_special['date_end'],
                         'quantity' => 1,
                         'type' => 0
                     );
@@ -117,8 +117,8 @@ class ModelShareinoProducts extends Model
                 if (($product_discount['date_start'] == '0000-00-00' || strtotime($product_discount['date_start']) < time()) && ($product_discount['date_end'] == '0000-00-00' || strtotime($product_discount['date_end']) > time())) {
                     $listDiscounts[] = array(
                         'amount' => $product['price'] - $product_discount['price'],
-                        'start_date' => $product_discount['date_start'] . ' 00:00:00',
-                        'end_date' => $product_discount['date_end'] . ' 00:00:00',
+                        'start_date' => $product_discount['date_start'],
+                        'end_date' => $product_discount['date_end'],
                         'quantity' => $product_discount['quantity'],
                         'type' => 0
                     );
