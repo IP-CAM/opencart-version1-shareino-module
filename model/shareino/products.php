@@ -3,28 +3,15 @@
 class ModelShareinoProducts extends Model
 {
 
-    protected function array_pluck($array, $column_name)
-    {
-        if (function_exists('array_column')) {
-            return array_column($array, $column_name);
-        }
-
-        return array_map(function($element) use($column_name) {
-            return $element[$column_name];
-        }, $array);
-    }
-
     public function getCount()
     {
         $product = DB_PREFIX . "product";
         $synchronize = DB_PREFIX . "shareino_synchronize";
 
-        /*
-         * SELECT COUNT(*) AS total FROM v1_product WHERE v1_product.status = 1 AND( v1_product.product_id NOT IN( SELECT v1_shareino_synchronize.product_id FROM v1_shareino_synchronize ) OR v1_product.date_modified NOT IN( SELECT v1_shareino_synchronize.date_modified FROM v1_shareino_synchronize ) )
-         */
-        $query = $this->db->query("SELECT COUNT(*) AS total FROM $product WHERE $product.status =1 "
-            . "AND ($product.product_id NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
-            . "OR $product.date_modified NOT IN(SELECT $synchronize.date_modified FROM $synchronize))");
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM $product WHERE $product.product_id "
+            . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
+            . "OR $product.date_modified "
+            . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize)");
 
         if ($query->rows > 0) {
             return $query->rows[0]['total'];
@@ -38,9 +25,10 @@ class ModelShareinoProducts extends Model
         $synchronize = DB_PREFIX . "shareino_synchronize";
         $offset = ($pageNumber - 1) * $limit;
 
-        $query = $this->db->query("SELECT * FROM $product WHERE $product.status =1 "
-            . "AND ($product.product_id NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
-            . "OR $product.date_modified NOT IN(SELECT $synchronize.date_modified FROM $synchronize))"
+        $query = $this->db->query("SELECT * FROM $product WHERE $product.product_id "
+            . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
+            . "OR $product.date_modified "
+            . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize) "
             . "LIMIT $limit OFFSET $offset");
 
         if ($query->rows > 0) {
@@ -61,7 +49,7 @@ class ModelShareinoProducts extends Model
         return $products;
     }
 
-    function getProductDetail($product)
+    protected function getProductDetail($product)
     {
         if ($product == null) {
             return array();
@@ -150,7 +138,7 @@ class ModelShareinoProducts extends Model
             'meta_keywords' => $product['meta_keyword'],
             'meta_description' => $product['meta_description'],
             'meta_title' => '',
-            'image' => $website . 'image/' . $product['image'],
+            'image' => $product['image'] ? $website . 'image/' . $product['image'] : '',
             'images' => $productImages,
             'attributes' => $attributes,
             'tags' => explode(',', $product['tag']),
@@ -158,6 +146,17 @@ class ModelShareinoProducts extends Model
             'out_of_stock' => 0
         );
         return $productDetail;
+    }
+
+    protected function array_pluck($array, $column_name)
+    {
+        if (function_exists('array_column')) {
+            return array_column($array, $column_name);
+        }
+
+        return array_map(function($element) use($column_name) {
+            return $element[$column_name];
+        }, $array);
     }
 
 }
