@@ -29,7 +29,7 @@ class ModelShareinoProducts extends Model
     {
         $product = DB_PREFIX . "product";
         $offset = ($pageNumber - 1) * $limit;
-        $query = $this->db->query("SELECT `product_id` FROM $product LIMIT $limit OFFSET $offset WHERE status=1");
+        $query = $this->db->query("SELECT `product_id` FROM $product WHERE `status`=1 LIMIT $limit OFFSET $offset");
 
         if ($query->rows > 0) {
             return $this->array_pluck($query->rows, 'product_id');
