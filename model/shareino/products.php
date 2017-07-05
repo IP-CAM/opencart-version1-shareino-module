@@ -14,32 +14,22 @@ class ModelShareinoProducts extends Model
         }, $array);
     }
 
-    public function getAllIdes()
+    public function getCount()
     {
         $product = DB_PREFIX . "product";
-        $synchronize = DB_PREFIX . "shareino_synchronize";
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM $product WHERE status=1");
 
-        $result = $this->db->query("SELECT COUNT(*) AS 'count' FROM $synchronize");
-
-        if (!$result->row['count']) {
-            $query = $this->db->query("SELECT `product_id` FROM $product"); //WHERE `status`=1");
-        } else {
-            $query = $this->db->query("SELECT * FROM $product WHERE $product.product_id "
-                . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
-                . "OR $product.date_modified "
-                . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize)"); //AND $product.status =1");
-        }
         if ($query->rows > 0) {
-            return $this->array_pluck($query->rows, 'product_id');
+            return $query->rows[0]['total'];
         }
-        return false;
+        return 0;
     }
 
     public function getIdes($limit, $pageNumber)
     {
         $product = DB_PREFIX . "product";
         $offset = ($pageNumber - 1) * $limit;
-        $query = $this->db->query("SELECT `product_id` FROM $product LIMIT $limit OFFSET $offset");
+        $query = $this->db->query("SELECT `product_id` FROM $product LIMIT $limit OFFSET $offset WHERE status=1");
 
         if ($query->rows > 0) {
             return $this->array_pluck($query->rows, 'product_id');
@@ -47,32 +37,16 @@ class ModelShareinoProducts extends Model
         return false;
     }
 
-    public function getAllProducts($productIds = array(), $type = 0)
+    public function products($ids = array())
     {
         $this->load->model('catalog/product');
-        if ($type) {
-            $productsArray = array();
-            foreach ($productIds as $value) {
-                $product = $this->model_catalog_product->getProduct($value);
-                $productsArray[] = $this->getProductDetail($product);
-            }
-        } else {
-            $products = $this->model_catalog_product->getProducts(); //array("filter_status" => 1)
-            $productsArray = array();
-            foreach ($products as $product) {
-                $productsArray[] = $this->getProductDetail($product);
-            }
+
+        $products = array();
+        foreach ($ids as $id) {
+            $products[] = $this->getProductDetail($this->model_catalog_product->getProduct($id));
         }
-        return $productsArray;
-    }
 
-    function getProduct($id)
-    {
-        $this->load->model('catalog/product');
-        $this->load->model('catalog/attribute');
-
-        $product = $this->model_catalog_product->getProduct($id);
-        return $this->getProductDetail($product);
+        return $products;
     }
 
     function getProductDetail($product)
@@ -173,4 +147,48 @@ class ModelShareinoProducts extends Model
         return $productDetail;
     }
 
+//    function getProduct($id)
+//    {
+//        $this->load->model('catalog/product');
+//        $this->load->model('catalog/attribute');
+//
+//        $product = $this->model_catalog_product->getProduct($id);
+//        return $this->getProductDetail($product);
+//    }
+//    public function getAllIdes()
+//    {
+//        $product = DB_PREFIX . "product";
+//        $synchronize = DB_PREFIX . "shareino_synchronize";
+//
+//        $result = $this->db->query("SELECT COUNT(*) AS 'count' FROM $synchronize");
+//
+//        if (!$result->row['count']) {
+//            $query = $this->db->query("SELECT `product_id` FROM $product WHERE `status`=1");
+//        } else {
+//            $query = $this->db->query("SELECT * FROM $product WHERE $product.product_id "
+//                . "NOT IN(SELECT $synchronize.product_id FROM $synchronize) "
+//                . "OR $product.date_modified "
+//                . "NOT IN(SELECT $synchronize.date_modified FROM $synchronize) AND $product.status =1");
+//        }
+//        if ($query->rows > 0) {
+//            return $this->array_pluck($query->rows, 'product_id');
+//        }
+//        return false;
+//    }
+//    public function getAllProducts($ids = array(), $type = 0)
+//    {
+//        $products = array();
+//        $this->load->model('catalog/product');
+//        if ($type) {
+//            foreach ($ids as $id) {
+//                $products[] = $this->getProductDetail($this->model_catalog_product->getProduct($id));
+//            }
+//        } else {
+//            $products = $this->model_catalog_product->getProducts(); //array("filter_status" => 1)
+//            foreach ($products as $product) {
+//                $productsArray[] = $this->getProductDetail($product);
+//            }
+//        }
+//        return $products;
+//    }
 }

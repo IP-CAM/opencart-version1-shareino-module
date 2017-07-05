@@ -94,7 +94,7 @@ class ControllerModuleShareino extends Controller
          */
 
         $this->destroyProducts();
-        $this->data['countProduct'] = count($this->model_shareino_products->getAllIdes());
+        $this->data['countProduct'] = $this->model_shareino_products->getCount();
         $this->load->model('design/layout');
         $this->data['layouts'] = $this->model_design_layout->getLayouts();
         $this->template = 'module/shareino.tpl';
@@ -124,7 +124,7 @@ class ControllerModuleShareino extends Controller
             $this->load->model('shareino/requset');
 
             $categories = $this->model_shareino_categories->getCategories();
-            $result = $this->model_shareino_requset->sendRequset("categories/sync", $categories, "POST");
+            $result = $this->model_shareino_requset->sendRequset('categories/sync', $categories, 'POST');
 
             $this->response->setOutput(json_encode($result));
         }
@@ -150,8 +150,8 @@ class ControllerModuleShareino extends Controller
             $this->load->model('shareino/products');
             $this->load->model('shareino/requset');
 
-            $products = $this->model_shareino_products->getAllProducts($this->model_shareino_products->getIdes($limit, $pagenumber), 1);
-            $response = $this->model_shareino_requset->sendRequset("products", json_encode($products), "POST");
+            $products = $this->model_shareino_products->products($this->model_shareino_products->getIdes($limit, $pagenumber));
+            $response = $this->model_shareino_requset->sendRequset('products', json_encode($products), 'POST');
 
             $this->response->setOutput(json_encode($response));
         }
