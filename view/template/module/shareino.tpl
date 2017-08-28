@@ -237,7 +237,7 @@
 
             var split = 50;
             var pageNumber = 1;
-            var countProduct = 0;
+            var countProduct = <?php echo $countProduct;?>;
             var pageCount = Math.ceil(countProduct / split);
             var progress = jQuery("#progress");
             var submitProgress = jQuery("#sync-progress");
