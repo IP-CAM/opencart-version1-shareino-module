@@ -40,6 +40,21 @@
                 <hr/>
                 <div class="panel-body">
                     <div class="form-group">
+                        <form action="<?php echo $action; ?>" method="post" class="form-horizontal shareino_out_of_stock" id="shareino_api_token" data-token="<?php echo $token ?>">
+                            <div class="col-sm-9">
+                                <label class="col-sm-2 control-label" for="input-name">درصورت اتمام موجودی</label>
+                                <select name="shareino_out_of_stock" class="form-control">
+                                    <option value="0" <?php if($shareino_out_of_stock== 0) echo'selected';?>>رد سفارش</option>
+                                    <option value="1" <?php if($shareino_out_of_stock== 1) echo'selected';?>>امکان ثبت سفارش</option>
+                                </select>
+                                <button type="submit" class="buttons" title="ذخیره">ذخیره</button>
+                            </div>
+                        </form>
+                    </div>
+                </div> <!-- ./out of stock  -->
+                <hr/>
+                <div class="panel-body">
+                    <div class="form-group">
                         <form action="<?php echo $action; ?>" method="post" class="form-horizontal sync-products" data-token="<?php echo $token ?>" data-operation="0">
                             <label class="col-sm-2 control-label" for="input-name">ارسال کالا ها</label>
                             <div class="col-sm-9">
@@ -77,17 +92,23 @@
                 <div class="panel-body">
                     <div class="form-group">
                         <form action="<?php echo $action; ?>" method="post" class="form-horizontal shareino-form-token" id="shareino_api_token" data-token="<?php echo $token ?>">
-                            <label class="col-sm-2 control-label" for="input-name">توکن دریافتی از شرینو</label>
                             <div class="col-sm-9">
+                                <label class="col-sm-2 control-label" for="input-name">توکن دریافتی از شرینو</label>
                                 <input type="text" id="shareino_api_token" name="shareino_api_token" value="<?php echo $shareino_api_token; ?>" placeholder="توکن فروشگاهی خود در سایت شرینو را در اینجا وارد کنید." class="form-control input_shareino_api_token"/>
-                            </div>
-                            <div class="col-sm-1">
-
                                 <button type="submit" class="buttons" title="ذخیره توکن">ذخیره توکن</button>
                             </div>
                         </form>
                     </div>
                 </div><!-- ./token  -->
+                <hr/>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="col-sm-10">
+                            <label class="col-sm-2 control-label" for="input-name">دستور کرون جاب</label>
+                            <input type="text"  dir="ltr" value='/usr/bin/wget -O - -q <?php echo $shareino_token_frontend ?>' class="form-control input_shareino_token_frontend" readonly="true"/>
+                        </div>
+                    </div>
+                </div><!-- ./token frontend  -->
                 <div class="panel-footer"></div>
             </div>
         </div>
@@ -105,6 +126,9 @@
         }
         .input_shareino_api_token{
             width: 500px;
+        }
+        .input_shareino_token_frontend{
+            width: 800px;
         }
         .shareino-text{
             font-size: 14px;
