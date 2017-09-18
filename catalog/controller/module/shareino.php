@@ -41,10 +41,10 @@ class ControllerModuleShareino extends Controller
         $products = $this->model_shareino_products->products($ids);
 
         // Send To SHAREINO
-        $request = $this->model_shareino_requset->sendRequset('products', json_encode($products), 'POST');
+        $result = $this->model_shareino_requset->sendRequset('products', json_encode($products), 'POST');
 
         //
-        if ($request) {
+        if ($result) {
             foreach ($ids as $id) {
                 $product = $this->model_catalog_product->getProduct($id);
                 $this->model_shareino_synchronize->synchronize($id, $product['date_modified']);
