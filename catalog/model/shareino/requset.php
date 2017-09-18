@@ -43,30 +43,18 @@ class ModelShareinoRequset extends Model
             );
 
             // Get result
-            $result = curl_exec($curl);
+            curl_exec($curl);
 
             // Get Header Response header
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
 
-            switch ($httpcode) {
-                case 200:
-                    return json_decode($result, true);
-                case 401:
-                    return array('status' => false, 'message' => 'خطا! توکن وارد شده معتبر نمیباشد.');
-                case 403:
-                    return array('status' => false, 'message' => 'خطا! دسترسی  مجاز نمیباشد.');
-                case 408:
-                    return array('status' => false, 'message' => 'خطا! درخواست منقضی شد.');
-                case 429:
-                case 0:
-                    return array('status' => false, 'code' => 429, 'message' => 'فرایند ارسال محصولات به طول می انجامد لطفا صبور باشید.');
-                default:
-                    return array('status' => false, 'message' => "error: $httpcode");
+            if ($httpcode != 200) {
+                return false;
             }
+            return true;
         }
-
-        return array('status' => false, 'message' => 'ابتدا توکن را از سرور شرینو دریافت کنید');
+        return false;
     }
 
     public function deleteProducts($ids, $all = false)
