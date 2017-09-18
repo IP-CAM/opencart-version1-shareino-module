@@ -3,7 +3,7 @@
 class ControllerModuleShareino extends Controller
 {
 
-    const SIZE = 12;
+    const SIZE = 80;
 
     public function index()
     {
