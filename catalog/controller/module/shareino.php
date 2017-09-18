@@ -14,7 +14,6 @@ class ControllerModuleShareino extends Controller
         $this->load->model('shareino/products');
         $this->load->model('shareino/synchronize');
 
-
         // DB
         $product = DB_PREFIX . "product";
         $synchronize = DB_PREFIX . "shareino_synchronize";

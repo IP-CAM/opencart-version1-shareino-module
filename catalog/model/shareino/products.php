@@ -23,13 +23,11 @@ class ModelShareinoProducts extends Model
         $this->load->model('setting/setting');
         $this->load->model('catalog/category');
         $this->load->model('shareino/attribute');
-        //$this->load->model('shareino/synchronize');
 
         $website = $this->config->get('config_url') ?
             $this->config->get('config_url') : 'http://' . $_SERVER['SERVER_NAME'] . '/';
 
         $productId = $product['product_id'];
-        //$this->model_shareino_synchronize->synchronize($productId, $product['date_modified']);
 
         $product_specials = $this->getProductSpecials($productId);
         $product_discounts = $this->getProductDiscounts($productId);
@@ -76,6 +74,10 @@ class ModelShareinoProducts extends Model
         $attributes = array();
 
         foreach ($attributesValues as $attr) {
+            if (!isset($attr['attribute_id'])) {
+                break;
+            }
+
             $attribute = $this->getAttribute($attr['attribute_id']);
             $attributes[$attribute['name']] = array(
                 'label' => $attribute['name'],
